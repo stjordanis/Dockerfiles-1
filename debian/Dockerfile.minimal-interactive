@@ -30,3 +30,33 @@ RUN apt-get autoremove && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN groupadd -g 1000 user && \
+    useradd -md /home/$USERNAME_ -g user -s /bin/bash -u 1000 user && \
+    chown -R user:user /home/user && \
+    echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+RUN cd /home/user && \
+    git clone https://github.com/dune-community/dune-gdt-super.git && \
+    cd dune-gdt-super && \
+    git checkout issue-93 && \
+    git submodule update --init --recursive && \
+    export OPTS=gcc-debug.ninja && \
+    cd debian-minimal && \
+    . ./PATH.sh && \
+    cd $BASEDIR && \
+    ./local/bin/download_external_libraries.py && \
+    ./local/bin/build_external_libraries.py && \
+    ./dune-common/bin/dunecontrol --opts=config.opts/$OPTS --builddir=$INSTALL_PREFIX/../build-$OPTS all && \
+    chown -R 1000:1000 /home/user/dune-gdt-super
+
+RUN cd /home/user/dune-gdt-super/debian-minimal && \
+       . ./PATH.sh && \
+       export OPTS=gcc-debug.ninja && \
+       cd $INSTALL_PREFIX/../build-$OPTS/dune-gdt && \
+       ninja -j$(nproc --all) test_linearelliptic__swipdg_discretization || echo "This failure is expected"
+
+RUN chown -R 1000:1000 /home/user/dune-gdt-super
+
+ADD entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
