@@ -25,6 +25,10 @@ $(REPONAMES): check_client
 		-D AUTHOR="$(AUTHOR)" \
 		-D GITREV=$(GITREV) \
 		-I$(THISDIR)/include -I ./include $@/Dockerfile.in > $@/Dockerfile
+	echo '+++++++++++++++++++++++++++++++++++++++++++++++++++'
+	df -h
+	mount
+	echo '+++++++++++++++++++++++++++++++++++++++++++++++++++'
 	cd $@ && $(DOCKER_SUDO) docker build ${DOCKER_QUIET} -t $(REPO):$(GITREV) .
 	$(DOCKER_SUDO) docker tag $(REPO):$(GITREV) $(REPO):latest
 
