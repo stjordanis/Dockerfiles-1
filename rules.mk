@@ -27,7 +27,8 @@ $(REPONAMES): check_client
 		-I$(THISDIR)/include -I ./include $@/Dockerfile.in > $@/Dockerfile
 	echo '+++++++++++++++++++++++++++++++++++++++++++++++++++'
 	df -h
-	mount
+	docker system prune -f
+	df -h
 	echo '+++++++++++++++++++++++++++++++++++++++++++++++++++'
 	cd $@ && $(DOCKER_SUDO) docker build ${DOCKER_QUIET} -t $(REPO):$(GITREV) .
 	$(DOCKER_SUDO) docker tag $(REPO):$(GITREV) $(REPO):latest
