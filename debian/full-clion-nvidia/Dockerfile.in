@@ -11,4 +11,5 @@ FROM dunecommunity/debian-full
 include(nvidia)
 include(clion)
 include(interactive)
+include(standardese)
 include(labels)
